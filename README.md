@@ -4,6 +4,7 @@
 
 [![Status](https://img.shields.io/badge/status-under%20review-blue)](https://github.com/trooty524/TCRTD)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Tests](https://github.com/trooty524/TCRTD/actions/workflows/tests.yml/badge.svg)](https://github.com/trooty524/TCRTD/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1%2B-ee4c2c.svg)](https://pytorch.org/)
 
@@ -54,6 +55,7 @@ The fixed-support projection used in the paper is implemented as
 | <code>train.py</code> | M0, TCRTD, Smooth-AP and Smooth-AP + TCRTD |
 | <code>evaluate.py</code> | Plain-cosine evaluation and per-query outputs |
 | <code>tools/prepare_data.py</code> | Person data preparation and content-overlap audit |
+| <code>tools/materialize_animal_split.py</code> | Materialize an authorized local animal split manifest |
 | <code>tools/paired_bootstrap.py</code> | Paired seed comparison with identity-block intervals |
 | <code>scripts/run_dinov2.sh</code> | DINOv2 person-ReID matrix and relation ablations |
 | <code>scripts/run_resnet.sh</code> | ResNet-50/101 person-ReID matrix |
@@ -140,8 +142,12 @@ images and the sealed project test sets are not included in this repository.
 
 The [WildlifeDatasets toolkit](https://github.com/WildlifeDatasets/wildlife-datasets)
 is a common entry point for the animal datasets. Dataset-specific download terms
-and licenses remain in force. Use the paper's manifests and split files to
-reproduce the sealed LeopardID2022 and WhaleSharkID evaluations.
+and licenses remain in force. The LeopardID2022 and WhaleSharkID test manifests
+used for the sealed evaluations are project-held and are deliberately not
+published in this repository. The public release therefore reproduces the
+training code and evaluator, but exact sealed-test numbers require an authorized
+local manifest. The manifest format and materialization command are documented
+in [`protocols/README.md`](protocols/README.md).
 
 For an animal dataset, create:
 
@@ -298,14 +304,18 @@ junk-aware versus identity-only rules, stable ranking and paired bootstrap.
 
 ## Reproducibility and data policy
 
-This repository contains source code, scripts, tests, a pipeline illustration and
-the NightReID exclusion list. It does not contain benchmark images, pretrained or
-fine-tuned weights, private/sealed test splits, experiment outputs, credentials
-or environment files.
+This repository contains source code, scripts, tests, a pipeline illustration,
+the public NightReID exclusion list and a schema/tool for authorized local animal
+split manifests. It does not contain benchmark images, pretrained or fine-tuned
+weights, private/sealed test splits, experiment outputs, credentials or
+environment files. Checkpoints are intentionally omitted; see
+[`checkpoints/README.md`](checkpoints/README.md).
 
 For exact reproduction, keep the dataset license/citation, prepared image-folder
 manifest, content-overlap audit, split manifest, seed, epoch budget and command
-line with the downloaded data.
+line with the downloaded data. The person benchmarks can be reproduced from the
+public preparation commands. LeopardID2022 and WhaleSharkID exact test scores
+require the corresponding authorized sealed manifest.
 
 ## Citation
 

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/trooty524/TCRTD/blob/main/protocols/animal_split_manifest.schema.json",
+  "title": "TCRTD local animal split manifest",
+  "description": "Schema for an authorized local manifest used to materialize an animal ReID split. No benchmark paths or identities are published here.",
+  "type": "object",
+  "required": ["dataset", "version", "train", "query", "gallery"],
+  "properties": {
+    "dataset": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "train": {"$ref": "#/$defs/entries"},
+    "query": {"$ref": "#/$defs/entries"},
+    "gallery": {"$ref": "#/$defs/entries"}
+  },
+  "$defs": {
+    "entries": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/entry"}
+    },
+    "entry": {
+      "type": "object",
+      "required": ["path", "identity"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(^|/)\\.\\.(/|$)).+"
+        },
+        "identity": {"type": "string", "minLength": 1, "pattern": "^[^/\\\\.][^/\\\\]*$"}
+      }
+    }
+  },
+  "additionalProperties": true
+}
