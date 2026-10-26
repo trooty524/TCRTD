@@ -237,41 +237,52 @@ python tools/paired_bootstrap.py \
 
 ## Reported results
 
-Protocol labels are part of every number. Reduced/select, full-official person
-tests and dataset-specific animal tests are separate estimands.
+Numbers are paper snapshots from the development-selected epoch budget
+(Market-1501 6, MSMT17 4, NightReID 6 epochs; animal datasets 25 epochs).
+Exact reproduction requires the matching manifest, split, budget, and evaluator.
 
-### DINOv2-B/14 stress and animal matrix
+### Person ReID — complete official tests (three seeds, DINOv2)
 
-| Dataset | Protocol | M0 mAP | TCRTD mAP | Delta mAP |
-| --- | --- | ---: | ---: | ---: |
-| Market-1501 | reduced/select | 85.09 | 86.51 | +1.41 |
-| MSMT17 | reduced/select | 63.97 | 66.58 | +2.62 |
-| NightReID | legacy identity-only | 35.41 | 33.89 | -1.51 |
-| SeaTurtleID2022 | temporal/open-set | 55.60 | 58.15 | +2.55 |
-| WhaleSharkID | identity-only | 27.21 | 30.01 | +2.80 |
-| LeopardID2022 | identity-only | 44.15 | 45.36 | +1.21 |
-| ATRW | identity-only | 80.80 | 80.38 | -0.42 |
+Camera-aware junk rule for all three datasets; Market-1501 pid -1 images
+ignored; MSMT17 trained on the content-audited 32,391-image set.
 
-### DINOv2-B/14 full-official person matrix
+| Dataset (epochs) | Backbone | M0 mAP | TCRTD mAP | Δ mAP [95% CI] | M0 R1 | TCRTD R1 |
+| --- | --- | ---: | ---: | --- | ---: | ---: |
+| Market-1501 (6) | S/14 | 82.55 ± 0.24 | **84.13 ± 0.24** | +1.58 [+1.34, +1.84] | 91.64 | **92.41** |
+| | B/14 | 87.82 ± 0.30 | **88.57 ± 0.38** | +0.75 [+0.54, +0.96] | 94.03 | **94.61** |
+| MSMT17 (4) | S/14 | 58.66 ± 0.19 | **61.08 ± 0.68** | +2.43 [+2.26, +2.59] | 79.11 | **81.11** |
+| | B/14 | 69.84 ± 1.12 | **71.09 ± 0.71** | +1.26 [+1.09, +1.42] | 86.22 | **86.90** |
+| NightReID (6) | S/14 | 35.95 ± 0.57 | **36.91 ± 0.36** | +0.96 [+0.49, +1.43] | 51.05 | **52.77** |
+| | B/14 | 43.01 ± 0.46 | **43.66 ± 0.70** | +0.65 [+0.15, +1.14] | 59.18 | **59.59** |
 
-| Dataset | Train IDs | Query / gallery | M0 mAP | TCRTD mAP | Delta mAP |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Market-1501 | 751 | 3,368 / 19,732 | 81.42 | 82.26 | +0.84 |
-| MSMT17 | 1,041 | 11,659 / 82,161 | 69.89 | 72.51 | +2.62 |
+### Animal ReID — 25-epoch budget, identity-only sampler (three seeds, DINOv2)
 
-These are paper snapshots. Exact reproduction requires the matching manifest,
-split, budget and evaluator.
+Identity-block 95% intervals for the two held-out identity tests (LeopardID,
+WhaleSharkID). ATRW: all-versus-all; SeaTurtleID: published temporal test.
 
-A separate fixed-budget ResNet verification gives:
+| Dataset | Backbone | M0 mAP | TCRTD mAP | Δ mAP [95% CI] | Δ R1 |
+| --- | --- | ---: | ---: | --- | ---: |
+| ATRW | S/14 | 61.25 | 61.50 | +0.25 | -0.45 |
+| | B/14 | 59.94 | 61.05 | +1.11 | +0.93 |
+| SeaTurtleID2022 | S/14 | 43.03 | 47.38 | +4.35 | +3.44 |
+| | B/14 | 49.96 | 53.03 | +3.07 | +2.05 |
+| LeopardID2022 | S/14 | 34.30 | 38.52 | +4.22 [+0.88, +7.40] | +8.89 |
+| | B/14 | 34.82 | 40.14 | +5.32 [+2.26, +8.53] | +8.89 |
+| WhaleSharkID | S/14 | 20.97 | 22.81 | +1.84 [+0.07, +3.71] | +3.70 |
+| | B/14 | 26.87 | 30.48 | +3.61 [+1.77, +5.45] | +6.30 |
 
-| Dataset | Backbone | Epochs | M0 mAP | TCRTD mAP | Delta mAP |
-| --- | --- | ---: | ---: | ---: | ---: |
-| Market-1501 | ResNet-101 | 70 | 79.68 | 79.96 | +0.28 |
-| Market-1501 | ResNet-50 | 80 | 79.51 | 79.75 | +0.25 |
-| MSMT17 | ResNet-101 | 80 | 54.08 | 54.08 | -0.00 |
-| MSMT17 | ResNet-50 | 80 | 51.17 | 51.35 | +0.17 |
-| NightReID | ResNet-101 | 55 | 30.60 | 30.55 | -0.04 |
-| NightReID | ResNet-50 | 75 | 27.96 | 28.15 | +0.20 |
+### ImageNet ResNets — complete official tests (three seeds)
+
+Recipe, budget, and relation weights selected per cell on held-out identities.
+
+| Dataset | Backbone | Epochs | M0 mAP | TCRTD mAP | Δ mAP [95% CI] |
+| --- | --- | ---: | ---: | ---: | --- |
+| Market-1501 | ResNet-50 | 80 | 84.56 ± 0.08 | 84.75 ± 0.07 | +0.20 [-0.00, +0.40] |
+| | ResNet-101 | 70 | 84.89 ± 0.11 | 85.11 ± 0.06 | +0.22 [+0.01, +0.43] |
+| MSMT17 | ResNet-50 | 80 | 51.17 ± 0.05 | 51.35 ± 0.16 | +0.17 [-0.01, +0.36] |
+| | ResNet-101 | 80 | 54.08 ± 0.22 | 54.08 ± 0.24 | -0.00 [-0.18, +0.18] |
+| NightReID | ResNet-50 | 75 | 27.96 ± 0.30 | 28.15 ± 0.28 | +0.20 [-0.27, +0.64] |
+| | ResNet-101 | 55 | 30.60 ± 0.44 | 30.55 ± 0.34 | -0.04 [-0.48, +0.39] |
 
 Mixed outcomes are retained; TCRTD is not expected to improve every
 dataset/backbone combination.
