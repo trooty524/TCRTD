@@ -1,4 +1,4 @@
-"""Checks of the exactness claims and of Theorem 1 / Corollary 1 of the paper.  Run: python -m pytest tests"""
+"""Tests for the relation identities and retrieval metrics."""
 
 import itertools
 import math
@@ -20,7 +20,7 @@ def list_ap(y: list[int]) -> float:
 
 
 def test_ap_swap_weights_are_exact_ap_changes():
-    """Every pair weight equals |AP(swapped list) - AP(list)|, normalized by the total weight."""
+    """AP-swap weights equal the exact list AP changes."""
     torch.manual_seed(0)
     y = torch.tensor([1, 0, 0, 1, 1, 0, 1, 0, 0, 1], dtype=torch.bool)
     scores = torch.linspace(1.0, 0.0, len(y))

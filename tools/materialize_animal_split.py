@@ -1,18 +1,14 @@
-"""Materialize a local animal ReID split manifest.
+"""Create the image-folder layout from a local animal split manifest.
 
-The paper's sealed LeopardID2022 and WhaleSharkID test manifests are not
-distributed in this repository. An authorized user can keep such a manifest
-locally and use this tool to create the image-folder layout consumed by
-``train.py`` and ``evaluate.py``::
+Keep the manifest outside the repository and run::
 
     python tools/materialize_animal_split.py \
       --manifest /private/LeopardID2022_manifest.json \
       --source-root /data/LeopardID2022 \
       --output data/animals/leopardid2022
 
-Manifest paths are relative to ``--source-root`` and each entry names its
-identity explicitly. The tool copies files, writes the manifest used and an
-audit summary, and refuses absolute paths or path traversal.
+Paths are relative to ``--source-root`` and each entry includes its identity.
+The command copies files, records the manifest and writes an audit summary.
 """
 
 from __future__ import annotations
@@ -68,7 +64,7 @@ def _copy_entry(source: Path, output: Path, identity: str) -> None:
 
 
 def materialize_manifest(manifest_path: Path, source_root: Path, output: Path) -> dict[str, Any]:
-    """Copy the three manifest splits and return the written audit summary."""
+    """Copy the three splits and write the audit files."""
 
     manifest = _load_manifest(manifest_path)
     source_root = source_root.resolve()

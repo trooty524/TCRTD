@@ -1,4 +1,4 @@
-"""Image-folder datasets, camera labels, PK sampling, and transforms."""
+"""Image-folder datasets, camera parsing, sampling and transforms."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ NIGHTREID_CAMERAS = {"L1": 0, "L2": 1, "L3": 2, "R1": 3, "R2": 4, "R3": 5}
 
 
 def parse_camera(filename: str) -> int:
-    """Camera id from a Market-1501, MSMT17, or NightReID file name; -1 if unknown."""
+    """Return the camera id encoded in a benchmark filename, or -1."""
     name = Path(filename).name
     if m := re.search(r"_c(\d+)[_s]", name, flags=re.IGNORECASE):          # Market-1501
         return int(m.group(1))
@@ -28,11 +28,10 @@ def parse_camera(filename: str) -> int:
 
 
 class ImageFolderReID(Dataset):
-    """A ReID split stored as ``root/<identity>/<image>``.
+    """ReID images stored as ``root/<identity>/<image>``.
 
-    Labels follow the sorted identity folders and images are sorted within each
-    folder, so indices are stable across runs; ``__getitem__`` also returns the
-    index, which addresses the teacher memory.
+    Identities and files are sorted, so dataset indices stay stable across runs.
+    Each sample also returns its index for the teacher memory.
     """
 
     def __init__(self, root: str | Path, transform=None):
@@ -54,7 +53,7 @@ class ImageFolderReID(Dataset):
         return len(self.identities)
 
     def keys(self) -> list[str]:
-        """Relative paths; used as a deterministic tie-breaker when ranking."""
+        """Return relative paths for stable ranking tie-breaks."""
         return [p.relative_to(self.root).as_posix() for p in self.paths]
 
     def identity_names(self) -> list[str]:
@@ -72,10 +71,9 @@ class ImageFolderReID(Dataset):
 
 
 class PKSampler(Sampler[int]):
-    """P identities x K images per batch.
+    """Sample P identities and K images for each batch.
 
-    With ``camera_aware=True`` the K images of an identity are first drawn from
-    distinct cameras, so every anchor sees a cross-camera positive.
+    Camera-aware sampling draws an identity from multiple cameras when possible.
     """
 
     def __init__(self, dataset: ImageFolderReID, p: int, k: int, seed: int, camera_aware: bool):

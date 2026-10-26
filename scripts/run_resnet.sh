@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# ImageNet ResNet-50/101 (BoT-style recipe) with the per-dataset configurations of the paper
-# (supplementary Table XII). The relation weights are 1/50-1/25 of the DINOv2 weights.
-# Usage: bash scripts/run_resnet.sh
+# ResNet-50/101 person experiments with the reported per-dataset settings.
+# Run after preparing data/ with tools/prepare_data.py.
 set -euo pipefail
 
 SEEDS=(13 42 2026)

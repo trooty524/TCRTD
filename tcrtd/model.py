@@ -1,8 +1,7 @@
 """Backbones and the ReID head.
 
-Both backbone families expose a grid of tokens; the descriptor is the
-L2-normalized mean token, and a BNNeck classifier on the mean token provides
-the identity logits.
+Both backbone families expose a token grid. The descriptor is the normalized
+mean token, and the BNNeck classifier uses the same mean token.
 
     DINOv2-S/14, B/14   448 x 224 input, 32 x 16 patch tokens (384 / 768-d)
     ResNet-50, 101      256 x 128 input, last stride 1, 16 x 8 map (2048-d)
@@ -32,7 +31,7 @@ def is_resnet(name: str) -> bool:
 
 
 class ResNetTokens(nn.Module):
-    """ImageNet ResNet trunk with last stride 1, returning its final feature map as tokens."""
+    """ImageNet ResNet trunk with a stride-1 final stage."""
 
     def __init__(self, trunk: nn.Module):
         super().__init__()
@@ -47,7 +46,7 @@ class ResNetTokens(nn.Module):
 
 
 class DINOv2Tokens(nn.Module):
-    """DINOv2 ViT returning its patch tokens (class and register tokens dropped)."""
+    """DINOv2 ViT returning patch tokens without class or register tokens."""
 
     def __init__(self, vit: nn.Module):
         super().__init__()
@@ -59,11 +58,7 @@ class DINOv2Tokens(nn.Module):
 
 
 def _fix_position_grid(vit: nn.Module, image_size, grid) -> None:
-    """Resample the DINOv2 position table once to the training grid.
-
-    This keeps the forward pass of the pretrained model and makes the position
-    table an ordinary parameter, so training is deterministic on CUDA.
-    """
+    """Resize the DINOv2 position table to the training grid."""
     from timm.layers.pos_embed import resample_abs_pos_embed
 
     with torch.no_grad():
@@ -77,7 +72,7 @@ def _fix_position_grid(vit: nn.Module, image_size, grid) -> None:
 
 
 def build_backbone(name: str, weights: str | None = None, pretrained: bool = True) -> nn.Module:
-    """Build a backbone. With ``pretrained``, load ``weights`` (a local state dict) or download them."""
+    """Build a backbone and load local or downloaded pretrained weights."""
     arch, _, image_size, grid = BACKBONES[name]
     if is_resnet(name):
         import torchvision
@@ -104,7 +99,7 @@ def build_backbone(name: str, weights: str | None = None, pretrained: bool = Tru
 
 
 class ReIDModel(nn.Module):
-    """Backbone + mean-token descriptor + BNNeck identity classifier."""
+    """Backbone, mean-token descriptor and BNNeck classifier."""
 
     def __init__(self, backbone_name: str, num_classes: int, weights: str | None = None,
                  pretrained: bool = True):
@@ -117,11 +112,11 @@ class ReIDModel(nn.Module):
         nn.init.normal_(self.classifier.weight, std=0.001)
 
     def forward(self, images: torch.Tensor):
-        """Return the mean token, its L2-normalized descriptor, and identity logits."""
+        """Return pooled features, normalized descriptors and identity logits."""
         feature = self.backbone(images).float().mean(dim=1)
         return feature, F.normalize(feature, dim=1), self.classifier(self.bnneck(feature))
 
     @torch.no_grad()
     def describe(self, images: torch.Tensor) -> torch.Tensor:
-        """Deployment descriptor: one image in, one unit vector out; matched by cosine."""
+        """Return the unit descriptor used for cosine matching."""
         return self.forward(images)[1]

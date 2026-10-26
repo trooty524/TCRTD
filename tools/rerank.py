@@ -1,4 +1,4 @@
-"""Fixed k-reciprocal re-ranking (k1=20, k2=6, lambda=0.3) of saved test descriptors.
+"""Run fixed k-reciprocal re-ranking on saved test descriptors.
 
     python evaluate.py ... --save-features --output runs/x/test
     python tools/rerank.py --features runs/x/test/features.npz \
@@ -35,7 +35,7 @@ def main(argv=None) -> None:
     query, gallery = ImageFolderReID(args.query_root), ImageFolderReID(args.gallery_root)
     distance = k_reciprocal_rerank(torch.from_numpy(features["query"]), torch.from_numpy(features["gallery"]),
                                    args.k1, args.k2, args.lam)
-    # The graph uses every gallery image; Market-1501 junk images (identity -1) are ignored when scoring.
+    # Build the graph on the full gallery, then apply the evaluator junk rule.
     keep = np.array([i not in args.ignore_identity for i in gallery.identity_names()])
     pick = lambda values: [v for v, k in zip(values, keep) if k]
     ap, rank1 = evaluate(-distance[:, keep], query.identity_names(), pick(gallery.identity_names()),

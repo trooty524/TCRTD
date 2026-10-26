@@ -1,1 +1,1 @@
-"""Small command-line helpers shipped with the TCRTD release."""
+"""Command-line helpers for preparing and evaluating experiments."""

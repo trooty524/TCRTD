@@ -1,4 +1,4 @@
-"""Supervised ReID losses used by the baseline (M0) and the Smooth-AP comparator."""
+"""Losses used by the baseline and Smooth-AP comparator."""
 
 from __future__ import annotations
 
@@ -16,21 +16,21 @@ def _hardest(distances: torch.Tensor, labels: torch.Tensor) -> tuple[torch.Tenso
 
 
 def soft_margin_triplet(features: torch.Tensor, labels: torch.Tensor) -> torch.Tensor:
-    """Batch-hard soft-margin triplet on L2-normalized features (DINOv2 recipe)."""
+    """Batch-hard soft-margin triplet on normalized descriptors."""
     x = F.normalize(features.float(), dim=1)
     ap, an = _hardest(torch.cdist(x, x), labels)
     return F.softplus(ap - an).mean()
 
 
 def hard_margin_triplet(features: torch.Tensor, labels: torch.Tensor, margin: float = 0.3) -> torch.Tensor:
-    """Batch-hard triplet with margin on raw pooled features (BoT recipe for ResNet)."""
+    """Batch-hard margin triplet on pooled features."""
     x = features.float()
     ap, an = _hardest(torch.cdist(x, x), labels)
     return F.relu(ap - an + margin).mean()
 
 
 def smooth_ap(descriptors: torch.Tensor, labels: torch.Tensor, temperature: float = 0.01) -> torch.Tensor:
-    """Smooth-AP (Brown et al., ECCV 2020): 1 - mean AP with a sigmoid relaxation of ranks."""
+    """Smooth-AP with a sigmoid relaxation of ranks."""
     x = F.normalize(descriptors, dim=1)
     scores = x @ x.T
     n = scores.shape[0]

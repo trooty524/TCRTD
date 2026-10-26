@@ -1,14 +1,9 @@
-"""Evaluate a trained model with plain cosine matching on a query/gallery split.
+"""Evaluate a checkpoint with plain cosine matching.
 
-    python evaluate.py --checkpoint runs/market_b14_tcrtd/model.pth \
-        --query-root data/market1501/test/query --gallery-root data/market1501/test/gallery \
-        --output runs/market_b14_tcrtd/test
-
-Writes metrics.json and per_query.npz (AP and Rank-1 of every query, used by
-tools/paired_bootstrap.py). Market-1501 junk images (identity -1) are ignored by
-default, as in the official protocol. ``--identity-only`` drops the camera junk rule
-(animal datasets); ``--all-vs-all`` uses one folder as both query and gallery
-and excludes each query from its own gallery.
+The command writes ``metrics.json`` and ``per_query.npz``. Market-1501 junk
+images (identity -1) are ignored by default. ``--identity-only`` removes the
+camera rule for animal data; ``--all-vs-all`` uses one folder as both query and
+gallery and skips each query itself.
 """
 
 from __future__ import annotations
@@ -81,7 +76,7 @@ def main(argv=None) -> None:
 
 
 def _evaluate_without_self(similarity: np.ndarray, dataset: ImageFolderReID):
-    """All-versus-all retrieval: rank the other images of the set for every query."""
+    """Rank the other images in the same set for each query."""
     ids = np.asarray(dataset.identity_names())
     keys = dataset.keys()
     ap = np.full(len(ids), np.nan)

@@ -1,1 +1,1 @@
-"""Topology-consistent relation distillation for plain-cosine re-identification."""
+"""TCRTD relation distillation for plain-cosine re-identification."""

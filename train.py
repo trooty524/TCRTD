@@ -1,6 +1,4 @@
-"""Train M0, TCRTD, Smooth-AP, or Smooth-AP + TCRTD on one ReID training split.
-
-Example (DINOv2-B/14, Market-1501, the main configuration of the paper):
+"""Train one supported objective on a ReID training split.
 
     python train.py --train-root data/market1501/train --output runs/market_b14_tcrtd \
         --backbone dinov2_b14 --objective tcrtd --epochs 6 --seed 13
@@ -101,7 +99,7 @@ def build_optimizer(model: ReIDModel, args) -> torch.optim.Optimizer:
     head = [p for n, p in model.named_parameters() if p.requires_grad and n.startswith(("bnneck.", "classifier."))]
     head_ids = {id(p) for p in head}
     if not is_resnet(args.backbone):
-        # DINOv2: backbone 1e-5, last four blocks 5e-5, head 3e-4.
+        # DINOv2 learning rates: backbone 1e-5, last four blocks 5e-5, head 3e-4.
         blocks = len(model.backbone.vit.blocks)
         last = [p for n, p in model.named_parameters()
                 if p.requires_grad and n.startswith("backbone.vit.blocks.")
@@ -121,16 +119,16 @@ def build_optimizer(model: ReIDModel, args) -> torch.optim.Optimizer:
 
 
 def lr_factor(step: int, batches: int, args) -> float:
-    """Learning-rate multiplier at optimizer step ``step`` (``batches`` steps per epoch)."""
+    """Return the learning-rate multiplier for one optimizer step."""
     warmup, horizon = args.warmup_epochs, args.schedule_epochs
     if not is_resnet(args.backbone):
-        # DINOv2: per-step linear warmup, then cosine decay to 1% of the base rate.
+        # DINOv2 uses per-step warmup followed by cosine decay to 1% of the base rate.
         warm, total = warmup * batches, horizon * batches
         if step < warm:
             return min(1.0, (step + 1) / warm)
         t = min(1.0, (step - warm) / (total - warm))
         return 0.01 + 0.99 * 0.5 * (1.0 + math.cos(math.pi * t))
-    progress = step / batches   # ResNet: schedule in fractional epochs
+    progress = step / batches   # ResNet schedule, measured in fractional epochs.
     if progress < warmup:
         return 0.1 + 0.9 * progress / warmup
     if args.lr_schedule == "step":
@@ -182,7 +180,7 @@ def main(argv=None) -> None:
     for epoch in range(1, args.epochs + 1):
         started = time.time()
         target = None
-        if uses_relation:   # refresh the full-training-set relation target with the EMA teacher
+        if uses_relation:   # refresh the relation target with the EMA teacher
             memory = encode(teacher, memory_set, device, workers=args.workers)
             target = build_relation_target(memory, labels, cameras, config)
         sampler.set_epoch(epoch - 1)

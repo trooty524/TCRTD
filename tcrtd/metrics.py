@@ -1,4 +1,4 @@
-"""Retrieval metrics, fixed k-reciprocal re-ranking, and identity-block bootstrap."""
+"""Retrieval metrics, k-reciprocal re-ranking and paired bootstrap intervals."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from torch.nn import functional as F
 
 
 def rank_galleries(similarity: np.ndarray, gallery_keys: list[str]) -> np.ndarray:
-    """Descending order of each row; ties are broken by the gallery key."""
+    """Return descending row order with stable gallery-key tie breaks."""
     key_order = np.argsort(np.asarray(gallery_keys), kind="stable")
     keyed = similarity.astype(np.float32)[:, key_order]
     return key_order[np.argsort(-keyed, axis=1, kind="stable")]
@@ -18,7 +18,7 @@ def rank_galleries(similarity: np.ndarray, gallery_keys: list[str]) -> np.ndarra
 
 def evaluate(similarity, query_ids, gallery_ids, gallery_keys, query_cams=None, gallery_cams=None,
              block: int = 64, workers: int = 8):
-    """Per-query AP and Rank-1.
+    """Compute per-query AP and Rank-1.
 
     With cameras, gallery images of the query identity taken by the query camera
     are ignored (standard ReID junk rule); without cameras every same-identity
@@ -56,7 +56,7 @@ def evaluate(similarity, query_ids, gallery_ids, gallery_keys, query_cams=None, 
 
 
 def identity_block_interval(delta, identities, reps: int = 10_000, seed: int = 20261010):
-    """95% interval of a mean paired difference, resampling query identities with all their queries."""
+    """Bootstrap a 95% interval by resampling query identities."""
     delta, identities = np.asarray(delta, dtype=np.float64), np.asarray(identities)
     units = np.unique(identities)
     sums = np.array([delta[identities == u].sum() for u in units])
@@ -72,11 +72,10 @@ def identity_block_interval(delta, identities, reps: int = 10_000, seed: int = 2
 
 def k_reciprocal_rerank(query: torch.Tensor, gallery: torch.Tensor, k1: int = 20, k2: int = 6,
                         lam: float = 0.3, block: int = 64) -> np.ndarray:
-    """k-reciprocal re-ranking (Zhong et al., CVPR 2017) with sparse encodings.
+    """Run sparse k-reciprocal re-ranking.
 
-    Returns the re-ranked distance [num_query, num_gallery]; lower is better.
-    Only the top-(k1+1) lists are materialized, so large galleries such as
-    MSMT17 fit in memory.
+    Returns a distance matrix; lower values rank first. Only the top ``k1+1``
+    neighbors are materialized.
     """
     device = "cuda" if torch.cuda.is_available() else "cpu"
     features = torch.cat([query, gallery]).float()

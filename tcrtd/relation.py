@@ -1,21 +1,9 @@
-"""Topology-consistent relation distillation (TCRTD).
+"""Relation targets and losses used by TCRTD.
 
-An EMA teacher encodes the full training set into a memory. For every anchor
-the teacher's top-K candidates are scored by a fusion of raw cosine distance
-and the Jaccard distance of k-reciprocal neighbor sets; the softmax of the
-negative fused distance is the relation target p_i. The student matches p_i
-with a forward KL over the same candidates (topology loss) and orders the
-candidate list with an AP-swap loss whose pair weights are exact list-level
-AP changes.
-
-Relation semantics (Section III of the paper):
-    legacy        all same-identity candidates are kept, including same-camera
-                  frames that the ReID evaluator ignores ("junk");
-    junk_aware    junk is removed from the neighbor graph and the candidate
-                  search, the support is refilled, and AP-swap uses the
-                  junk-free list (evaluator-compatible target);
-    fixed_support the legacy candidates and graph are kept and only the junk
-                  mass is projected out of p_i (Theorem 1).
+The EMA teacher encodes the training set. Reciprocal neighborhoods, fused
+cosine/Jaccard distances and the AP-swap loss define the target seen by the
+student. The three target policies are ``legacy``, ``junk_aware`` and
+``fixed_support``.
 """
 
 from __future__ import annotations

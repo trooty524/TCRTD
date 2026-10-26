@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# DINOv2-S/14 and B/14 on the three person benchmarks (main result, three seeds),
-# Smooth-AP and Smooth-AP + TCRTD, and the NightReID relation-target comparison.
-# Usage: bash scripts/run_dinov2.sh   (data prepared by tools/prepare_data.py under data/)
+# DINOv2 person experiments, Smooth-AP comparisons and NightReID target checks.
+# Run after preparing data/ with tools/prepare_data.py.
 set -euo pipefail
 
 declare -A EPOCHS=([market1501]=6 [msmt17]=4 [nightreid]=6)   # budgets chosen on held-out identities
@@ -27,8 +26,7 @@ for data in market1501 msmt17 nightreid; do
   done
 done
 
-# Relation semantics on NightReID: legacy and junk-aware targets, both rank policies, and the
-# fixed-support projection (junk mass removed from the legacy target on the legacy support).
+# NightReID target policies and AP-swap ranking policies.
 for backbone in dinov2_s14 dinov2_b14; do
   for seed in "${SEEDS[@]}"; do
     for rank in candidate_order student_score; do
@@ -39,7 +37,7 @@ for backbone in dinov2_s14 dinov2_b14; do
   done
 done
 
-# Paired intervals, e.g. TCRTD versus M0 on Market-1501 with DINOv2-B/14:
+# Paired interval for Market-1501 and DINOv2-B/14: for Market-1501 and DINOv2-B/14:
 python tools/paired_bootstrap.py \
   --baseline runs/market1501/dinov2_b14/m0_s{13,42,2026}/test \
   --method   runs/market1501/dinov2_b14/tcrtd_s{13,42,2026}/test

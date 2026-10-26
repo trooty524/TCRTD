@@ -8,13 +8,13 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1%2B-ee4c2c.svg)](https://pytorch.org/)
 
-This repository contains the research implementation of **TCRTD**, a training-time
-relation-distillation method for image re-identification (ReID).
+The release contains the code and experiment scripts for **TCRTD**, a
+training-time relation-distillation method for image re-identification (ReID).
 
 > **Re-Ranking at Training Time: Topology-Consistent Relation Distillation for Plain-Cosine Re-Identification**
 > Yu Ding and Xiuhui Wang, *IEEE Transactions on Multimedia*, under review.
 
-## What problem does TCRTD solve?
+## What TCRTD does
 
 k-reciprocal re-ranking improves retrieval by using query-gallery neighborhood
 structure. Its deployment cost is substantial: a graph must be built for every
@@ -33,15 +33,14 @@ matching. No gallery graph and no query-time re-ranking are required.
 
 ![TCRTD training pipeline](assets/pipeline.png)
 
-The implementation includes two relation semantics:
+The code supports two relation targets:
 
 - **junk-aware**: removes same-identity, same-camera images ignored by the standard
   person-ReID evaluator;
 - **legacy**: keeps all same-identity candidates and is intended for datasets
   without stable camera labels, including the animal benchmarks.
 
-The fixed-support projection used in the paper is implemented as
-<code>--relation fixed_support</code>.
+Use <code>--relation fixed_support</code> for the fixed-support projection.
 
 ## Repository map
 
@@ -55,7 +54,7 @@ The fixed-support projection used in the paper is implemented as
 | <code>train.py</code> | M0, TCRTD, Smooth-AP and Smooth-AP + TCRTD |
 | <code>evaluate.py</code> | Plain-cosine evaluation and per-query outputs |
 | <code>tools/prepare_data.py</code> | Person data preparation and content-overlap audit |
-| <code>tools/materialize_animal_split.py</code> | Materialize an authorized local animal split manifest |
+| <code>tools/materialize_animal_split.py</code> | Materialize a local animal split manifest |
 | <code>tools/paired_bootstrap.py</code> | Paired seed comparison with identity-block intervals |
 | <code>scripts/run_dinov2.sh</code> | DINOv2 person-ReID matrix and relation ablations |
 | <code>scripts/run_resnet.sh</code> | ResNet-50/101 person-ReID matrix |
@@ -94,8 +93,8 @@ data/<dataset>/
     gallery/<identity>/<image>
 ~~~
 
-Images are not redistributed by this repository. Download them from the official
-source, check the dataset license, and prepare a local copy.
+The repository does not redistribute benchmark images. Download each dataset from
+its official source and follow its license before preparing a local copy.
 
 ### Person-ReID datasets
 
@@ -129,9 +128,8 @@ duplicates.
 
 ### Animal and wildlife datasets
 
-The paper evaluates four datasets without stable camera labels. They use
-identity-only retrieval, legacy relation targets and random PK sampling. Original
-images and the sealed project test sets are not included in this repository.
+The animal experiments use identity-only retrieval, legacy relation targets and
+random PK sampling. The dataset images and sealed project test sets stay local.
 
 | Dataset | Species / setting | Paper protocol and counts | Dataset source | Reference |
 | --- | --- | --- | --- | --- |
@@ -142,12 +140,10 @@ images and the sealed project test sets are not included in this repository.
 
 The [WildlifeDatasets toolkit](https://github.com/WildlifeDatasets/wildlife-datasets)
 is a common entry point for the animal datasets. Dataset-specific download terms
-and licenses remain in force. The LeopardID2022 and WhaleSharkID test manifests
-used for the sealed evaluations are project-held and are deliberately not
-published in this repository. The public release therefore reproduces the
-training code and evaluator, but exact sealed-test numbers require an authorized
-local manifest. The manifest format and materialization command are documented
-in [`protocols/README.md`](protocols/README.md).
+and licenses remain in force. LeopardID2022 and WhaleSharkID test manifests stay
+with the project and are not part of the public repository. The training code and evaluator are public; the
+sealed test scores require a local copy of the matching manifest. The format and
+materialization command are in [`protocols/README.md`](protocols/README.md).
 
 For an animal dataset, create:
 
@@ -183,7 +179,7 @@ For a separate query/gallery split, omit <code>--all-vs-all</code> and provide
 | <code>smooth_ap</code> | M0 + Smooth-AP | AP-style comparator |
 | <code>tcrtd_smooth_ap</code> | M0 + TCRTD + Smooth-AP | Combination |
 
-Important TCRTD options:
+TCRTD options:
 
 | Option | Default | Meaning |
 | --- | ---: | --- |
@@ -200,7 +196,7 @@ DINOv2 uses 448 x 224 inputs and a 32 x 16 patch grid. ResNet-50/101 use
 256 x 128 inputs and a 16 x 8 final feature map. The deployment descriptor is
 the L2-normalized mean token/GAP feature.
 
-## Minimal person-ReID example
+## Person-ReID quick start
 
 ~~~bash
 python train.py --train-root data/market1501/train \
@@ -243,11 +239,11 @@ python tools/paired_bootstrap.py \
 
 ## Reported results
 
-Numbers are paper snapshots from the development-selected epoch budget
-(Market-1501 6, MSMT17 4, NightReID 6 epochs; animal datasets 25 epochs).
-Exact reproduction requires the matching manifest, split, budget, and evaluator.
+The tables below use the budgets selected on held-out identities: Market-1501
+6 epochs, MSMT17 4 epochs, NightReID 6 epochs, and 25 epochs for the animal
+experiments. Reproduction uses the same manifest, split, budget and evaluator.
 
-### Person ReID — complete official tests (three seeds, DINOv2)
+### Person ReID -- complete official tests (three seeds, DINOv2)
 
 Camera-aware junk rule for all three datasets; Market-1501 pid -1 images
 ignored; MSMT17 trained on the content-audited 32,391-image set.
@@ -261,7 +257,7 @@ ignored; MSMT17 trained on the content-audited 32,391-image set.
 | NightReID (6) | S/14 | 35.95 ± 0.57 | **36.91 ± 0.36** | +0.96 [+0.49, +1.43] | 51.05 | **52.77** |
 | | B/14 | 43.01 ± 0.46 | **43.66 ± 0.70** | +0.65 [+0.15, +1.14] | 59.18 | **59.59** |
 
-### Animal ReID — 25-epoch budget, identity-only sampler (three seeds, DINOv2)
+### Animal ReID -- 25-epoch budget, identity-only sampler (three seeds, DINOv2)
 
 Identity-block 95% intervals for the two held-out identity tests (LeopardID,
 WhaleSharkID). ATRW: all-versus-all; SeaTurtleID: published temporal test.
@@ -277,7 +273,7 @@ WhaleSharkID). ATRW: all-versus-all; SeaTurtleID: published temporal test.
 | WhaleSharkID | S/14 | 20.97 | 22.81 | +1.84 [+0.07, +3.71] | +3.70 |
 | | B/14 | 26.87 | 30.48 | +3.61 [+1.77, +5.45] | +6.30 |
 
-### ImageNet ResNets — complete official tests (three seeds)
+### ImageNet ResNets -- complete official tests (three seeds)
 
 Recipe, budget, and relation weights selected per cell on held-out identities.
 
@@ -304,18 +300,17 @@ junk-aware versus identity-only rules, stable ranking and paired bootstrap.
 
 ## Reproducibility and data policy
 
-This repository contains source code, scripts, tests, a pipeline illustration,
-the public NightReID exclusion list and a schema/tool for authorized local animal
-split manifests. It does not contain benchmark images, pretrained or fine-tuned
-weights, private/sealed test splits, experiment outputs, credentials or
-environment files. Checkpoints are intentionally omitted; see
+The release contains source code, scripts, tests, the pipeline illustration, the
+public NightReID exclusion list and a schema/tool for local animal split
+manifests. Benchmark images, pretrained or fine-tuned weights, private/sealed
+test splits, experiment outputs, credentials and environment files stay out of
+the release. Checkpoints are not included; see
 [`checkpoints/README.md`](checkpoints/README.md).
 
-For exact reproduction, keep the dataset license/citation, prepared image-folder
-manifest, content-overlap audit, split manifest, seed, epoch budget and command
-line with the downloaded data. The person benchmarks can be reproduced from the
-public preparation commands. LeopardID2022 and WhaleSharkID exact test scores
-require the corresponding authorized sealed manifest.
+Keep the dataset license and citation with the prepared image-folder manifest,
+content audit, split manifest, seed, epoch budget and command line. The public
+preparation commands cover the person benchmarks. LeopardID2022 and
+WhaleSharkID test scores require the corresponding local sealed manifest.
 
 ## Citation
 

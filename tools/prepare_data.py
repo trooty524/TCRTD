@@ -1,14 +1,8 @@
-"""Arrange an official ReID release as root/<identity>/<image> and audit train/test content overlap.
+"""Prepare a ReID release and audit train/test content overlap.
 
-    python tools/prepare_data.py --dataset market1501 --source /data/Market-1501-v15.09.15 --output data/market1501
-    python tools/prepare_data.py --dataset msmt17     --source /data/MSMT17_V1           --output data/msmt17
-    python tools/prepare_data.py --dataset nightreid  --source /data/NightReID           --output data/nightreid \
-        --exclude-identities protocols/nightreid_excluded_identities.txt
-
-Output: <output>/train, <output>/test/query, <output>/test/gallery, and
-audit.json. A training image is removed when its bytes or its decoded RGB
-pixels equal those of any test image; identities listed in
---exclude-identities are removed from training entirely.
+The command writes ``train``, ``test/query``, ``test/gallery`` and ``audit.json``.
+Training files with matching bytes or decoded RGB pixels are removed. Identities
+listed with ``--exclude-identities`` are also removed from training.
 """
 
 from __future__ import annotations

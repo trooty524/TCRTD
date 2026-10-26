@@ -1,13 +1,7 @@
-"""Paired comparison of two methods over seeds, with identity-block bootstrap intervals.
+"""Compare paired method runs and bootstrap an identity-block interval.
 
-    python tools/paired_bootstrap.py \
-        --baseline runs/market_b14_m0_s{13,42,2026}/test \
-        --method   runs/market_b14_tcrtd_s{13,42,2026}/test
-
-Each directory holds the per_query.npz written by evaluate.py; the i-th
-baseline and method directories must share a seed. Reports the mean mAP of
-both methods, the seed-level differences, and the 95% interval of the
-seed-averaged per-query AP difference (10,000 identity-block replicates).
+Each directory contains the ``per_query.npz`` file written by ``evaluate.py``.
+The baseline and method directories must be listed in matching seed order.
 """
 
 from __future__ import annotations
