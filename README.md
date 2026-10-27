@@ -98,11 +98,11 @@ its official source and follow its license before preparing a local copy.
 
 ### Person-ReID datasets
 
-| Dataset | Official source | Paper | Protocol and prepared counts |
+| Dataset | Original dataset page / download | Benchmark paper | Protocol and prepared counts |
 | --- | --- | --- | --- |
-| [Market-1501](https://zheng-lab-anu.github.io/Project/project_reid.html) | Project page | [Benchmark paper](https://doi.org/10.1109/ICCV.2015.133) | Camera-aware junk rule; 751 train IDs / 12,936 train images; 3,368 query / 19,732 gallery |
-| [MSMT17](https://www.pkuvmc.com/dataset.html) | PKU VMC dataset page | [Benchmark paper](https://doi.org/10.1109/TPAMI.2018.2867508) | Complete official test with content-audited train; 1,041 train IDs / 32,391 train images; 11,659 query / 82,161 gallery |
-| [NightReID](https://github.com/msm8976/NightReID) | Official repository | [AAAI paper](https://doi.org/10.1609/AAAI.V39I10.33142) | Camera-aware protocol; 491 train IDs / 15,154 train images; 1,394 query / 26,111 gallery |
+| Market-1501 | [Project page and download information](https://zheng-lab-anu.github.io/Project/project_reid.html) | [Benchmark paper](https://doi.org/10.1109/ICCV.2015.133) | Camera-aware junk rule; 751 train IDs / 12,936 train images; 3,368 query / 19,732 gallery |
+| MSMT17 | [PKU VMC dataset page](https://www.pkuvmc.com/dataset.html) | [Benchmark paper](https://doi.org/10.1109/TPAMI.2018.2867508) | Complete official test with content-audited train; 1,041 train IDs / 32,391 train images; 11,659 query / 82,161 gallery |
+| NightReID | [Official dataset repository](https://github.com/msm8976/NightReID) | [AAAI paper](https://doi.org/10.1609/AAAI.V39I10.33142) | Camera-aware protocol; 491 train IDs / 15,154 train images; 1,394 query / 26,111 gallery |
 
 For Market-1501 and NightReID, same-identity gallery images from the query
 camera are ignored. Market identity <code>-1</code> junk images are ignored by
@@ -131,12 +131,12 @@ duplicates.
 The animal experiments use identity-only retrieval, legacy relation targets and
 random PK sampling. The dataset images and sealed project test sets stay local.
 
-| Dataset | Species / setting | Paper protocol and counts | Dataset source | Reference |
+| Dataset | Species / setting | Paper protocol and counts | Original dataset page / download | Reference |
 | --- | --- | --- | --- | --- |
-| [ATRW](https://lila.science/datasets/atrw) | Amur tiger, terrestrial wildlife | 59 train IDs / 700 train images; 1,764-image all-versus-all test | [CVWC challenge page](https://cvwc2019.github.io/challenge.html) | [ACM MM 2020](https://doi.org/10.1145/3394171.3413569) |
-| [SeaTurtleID2022](https://www.kaggle.com/datasets/wildlifedatasets/seaturtleid2022) | Mediterranean loggerhead sea turtles | 438 train IDs / 4,678 train images after one duplicate removal; temporal test, 2,629 query / 2,632 gallery | [WildlifeDatasets entry](https://wildlifedatasets.github.io/wildlife-datasets/datasets/#seaturtleid2022) | [WACV 2024](https://openaccess.thecvf.com/content/WACV2024/html/Adam_SeaTurtleID2022_A_Long-Span_Dataset_for_Reliable_Sea_Turtle_Re-Identification_WACV_2024_paper.html) |
-| [LeopardID2022](https://lila.science/datasets/leopard-id-2022/) | Camera-trap leopards | 291 train IDs / 4,865 train images; sealed test, 60 query / 1,180 gallery | [WildlifeDatasets entry](https://wildlifedatasets.github.io/wildlife-datasets/datasets/#leopardid2022) | [OpenAnimals](https://doi.org/10.1109/ICCV51701.2025.01333) |
-| [WhaleSharkID](https://lila.science/datasets/whale-shark-id) | Whale sharks, underwater imagery | 372 train IDs / 5,564 train images; sealed test, 90 query / 1,067 gallery | [WildlifeDatasets entry](https://wildlifedatasets.github.io/wildlife-datasets/datasets/#whalesharkid) | [Dataset paper](https://www.int-res.com/abstracts/esr/v7/n1/p39-53/) |
+| ATRW | Amur tiger, terrestrial wildlife | 59 train IDs / 700 train images; 1,764-image all-versus-all test | [LILA dataset page and download](https://lila.science/datasets/atrw) | [ACM MM 2020](https://doi.org/10.1145/3394171.3413569) |
+| SeaTurtleID2022 | Mediterranean loggerhead sea turtles | 438 train IDs / 4,678 train images after one duplicate removal; temporal test, 2,629 query / 2,632 gallery | [Kaggle dataset download](https://www.kaggle.com/datasets/wildlifedatasets/seaturtleid2022) | [WACV 2024](https://openaccess.thecvf.com/content/WACV2024/html/Adam_SeaTurtleID2022_A_Long-Span_Dataset_for_Reliable_Sea_Turtle_Re-Identification_WACV_2024_paper.html) |
+| LeopardID2022 | Camera-trap leopards | 291 train IDs / 4,865 train images; sealed test, 60 query / 1,180 gallery | [LILA dataset page and access](https://lila.science/datasets/leopard-id-2022/) | [OpenAnimals](https://doi.org/10.1109/ICCV51701.2025.01333) |
+| WhaleSharkID | Whale sharks, underwater imagery | 372 train IDs / 5,564 train images; sealed test, 90 query / 1,067 gallery | [LILA dataset page and access](https://lila.science/datasets/whale-shark-id) | [Dataset paper](https://www.int-res.com/abstracts/esr/v7/n1/p39-53/) |
 
 The [WildlifeDatasets toolkit](https://github.com/WildlifeDatasets/wildlife-datasets)
 is a common entry point for the animal datasets. Dataset-specific download terms
